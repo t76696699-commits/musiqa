@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Musiqa animatsiyasi</title>
+    <!-- Silliq piktogrammalar uchun FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            /* Kreativ chuqur kosmik ranglar uyg'unligi (Hech qaysi tayyor dizaynga o'xshamaydi!) */
+            background: radial-gradient(circle at top, #14102c 0%, #0a0718 60%, #030208 100%);
+            background-attachment: fixed;
+
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding-top: 40px;
+            padding-bottom: 180px;
+            overflow-x: hidden;
+        }
+
+        /* Musiqalar ro'yxati konteyneri */
+        .box {
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 750px;
+            max-height: 60vh;
+            overflow-y: auto;
+            gap: 15px;
+            padding-right: 5px;
+        }
+
+        /* Chiroyli neon ko'rinishidagi scrollbar */
+        .box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .box::-webkit-scrollbar-thumb {
+            background: linear-gradient(#00ffcc, #007bff);
+            border-radius: 10px;
+        }
+
+        /* Shaffof shisha effekti (Glassmorphism) */
+        .list {
+            width: 100%;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            display: flex;
+            padding: 12px;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Aktiv bo'lganda yoki sichqoncha kelganda neon nurlanish */
+        .list:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(0, 255, 204, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.12);
+        }
+
+        .list img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Neon Play tugmasi */
+        .list .ii {
+            color: #00ffcc;
+            font-size: 28px;
+            margin-left: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+        }
+
+        .list .ii:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Matn uzun bo'lsa chiroyli '...' bo'lib kesiladi */
+        .list h1 {
+            font-size: 17px;
+            color: #e0e0e6;
+            font-weight: 500;
+            margin-left: 18px;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        /* O'ng tomondagi noodatiy ikonkalar */
+        .list .right-icons {
+            display: flex;
+            gap: 18px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .list .right-icons i {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .list .right-icons i:hover {
+            color: #ff007f; /* Neon qizg'ish rang */
+            transform: scale(1.1);
+        }
+
+        /* Pastki boshqaruv paneli (Footer) */
+        footer {
+            width: 100%;
+            height: 140px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(transparent, rgba(3, 2, 8, 0.98));
+            padding: 10px;
+            z-index: 100;
+        }
+
+        /* Shisha panel pleyeri */
+        .div {
+            width: 90%;
+            max-width: 750px;
+            height: 110px;
+            background: rgba(15, 11, 35, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .qator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            color: white;
+            gap: 15px;
+        }
+
+        /* Diskning aylanma animatsiyasi */
+        .img2 {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            animation: spin 5s linear infinite paused;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.3);
+        }
+
+        .h2 {
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 500;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+        }
+
+        .d {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .d i {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .d i:hover {
+            color: #00ffcc;
+            transform: scale(1.1);
+        }
+
+        .d .play {
+            font-size: 30px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+        }
+
+        /* Neon taraqqiyot chizig'i (Progress bar) */
+        .chiziq {
+            background-color: rgba(255, 255, 255, 0.08);
+            width: 100%;
+            height: 6px;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .liniya {
+            background: linear-gradient(90deg, #007bff, #00ffcc);
+            width: 0%;
+            height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 8px #00ffcc;
+            pointer-events: none; /* Skrol paytida clickni to'sib qo'ymasligi uchun */
+        }
+
+        .img2.active {
+            animation-play-state: running !important;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 📱 Mobil telefonlar uchun maxsus moslashuv */
+        @media (max-width: 600px) {
+            body {
+                padding-top: 20px;
+                padding-bottom: 160px;
+            }
+            .box {
+                width: 92%;
+                max-height: 65vh;
+                gap: 10px;
+            }
+            .list {
+                height: 70px;
+                padding: 10px;
+                border-radius: 12px;
+            }
+            .list img {
+                width: 48px;
+                height: 48px;
+                border-radius: 8px;
+            }
+            .list h1 {
+                font-size: 14px;
+                margin-left: 12px;
+            }
+            .list .ii {
+                font-size: 24px;
+                margin-left: 8px;
+            }
+            .list .right-icons {
+                font-size: 14px;
+                gap: 12px;
+            }
+
+            footer {
+                height: 130px;
+            }
+            .div {
+                height: 105px;
+                padding: 10px 15px;
+                border-radius: 16px;
+            }
+            .img2 {
+                width: 45px;
+                height: 45px;
+            }
+            .h2 {
+                font-size: 13px;
+            }
+            .d {
+                gap: 15px;
+            }
+            .d i {
+                font-size: 18px;
+            }
+            .d .play {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    {% for song in songs %}
+    <div class="list">
+        <!-- Har bir qo'shiqning shaxsiy muqovasi -->
+        <img class="img" src="{{ song.img_url | safe }}" alt="">
+        <i class="fa-solid fa-play ii" data-index="{{ loop.index0 }}"></i>
+        <h1 class="h1">{{ song.title }}</h1>
+        <div class="right-icons">
+            <i class="fa-regular fa-star"></i>
+            <i class="fa-regular fa-floppy-disk"></i>
+        </div>
+    </div>
+    {% else %}
+        <h2 style="color: white; text-align: center; margin-top: 50px; font-size: 16px;">
+            Hali musiqa yuklanmagan. Iltimos "music" papkasiga musiqa tashlang.
+        </h2>
+    {% endfor %}
+</div>
+
+<footer>
+    <div class="div">
+        <div class="qator">
+            <img class="img2" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300&auto=format&fit=crop" alt="">
+            <h1 class="h2">Musiqa yuklanmoqda...</h1>
+            <div class="d">
+                <i class="fa-solid fa-backward left"></i>
+                <i class="fa-solid fa-play play"></i>
+                <i class="fa-solid fa-forward right"></i>
+            </div>
+        </div>
+        <div class="chiziq">
+            <div class="liniya"></div>
+        </div>
+    </div>
+</footer>
+
+<!-- Fon ovozi playeri -->
+<audio id="mainAudio"></audio>
+
+<script>
+    // Maxfiy belgilarni ham to'g'ri o'qish imkoniyati (safesiz ishlamaydi)
+    const music_list = [
+        {% for song in songs %}
+        {
+            music_url: "{{ song.music_url | safe }}",
+            title: "{{ song.title | safe }}",
+            img_url: "{{ song.img_url | safe }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    let active_music = document.getElementById("mainAudio"),
+        active_play = document.querySelector(".play"),
+        active_play_list = document.querySelectorAll(".ii"),
+        active_img = document.querySelector(".img2"),
+        forward_play = document.querySelector(".right"),
+        backward_play = document.querySelector(".left"),
+        promo_title = document.querySelector(".h2"),
+        progress_status = document.querySelector('.liniya'),
+        progress = document.querySelector('.chiziq'),
+        counter = 0;
+
+    function loadMusic(index) {
+        if (music_list.length === 0) return;
+        counter = index;
+        active_music.src = music_list[counter].music_url;
+        active_img.src = music_list[counter].img_url;
+        promo_title.innerText = music_list[counter].title;
+    }
+
+    // Birinchi musiqani yuklash
+    if (music_list.length > 0) {
+        loadMusic(0);
+    }
+
+    function playMusic() {
+        if (music_list.length === 0) return;
+        active_music.play().then(() => {
+            active_play.classList.replace("fa-play", "fa-pause");
+            active_img.classList.add("active");
+            updateListIcons();
+        }).catch(err => console.log("Ovoz yuklashda xato:", err));
+    }
+
+    function pauseMusic() {
+        active_music.pause();
+        active_play.classList.replace("fa-pause", "fa-play");
+        active_img.classList.remove("active");
+        updateListIcons();
+    }
+
+    function updateListIcons() {
+        active_play_list.forEach((item, index) => {
+            if (index === counter && !active_music.paused) {
+                item.classList.replace("fa-play", "fa-pause");
+            } else {
+                item.classList.replace("fa-pause", "fa-play");
+            }
+        });
+    }
+
+    active_play.addEventListener("click", () => {
+        if (active_music.paused) playMusic(); else pauseMusic();
+    });
+
+    active_play_list.forEach((item) => {
+        item.addEventListener("click", (e) => {
+            let index = parseInt(e.target.getAttribute("data-index"));
+            if (counter === index) {
+                if (active_music.paused) playMusic(); else pauseMusic();
+            } else {
+                loadMusic(index);
+                playMusic();
+            }
+        });
+    });
+
+    forward_play.addEventListener("click", () => {
+        if (music_list.length === 0) return;
+        counter = (counter + 1) % music_list.length;
+        loadMusic(counter);
+        playMusic();
+    });
+
+    backward_play.addEventListener("click", () => {
+        if (music_list.length === 0) return;
+        counter = (counter - 1 + music_list.length) % music_list.length;
+        loadMusic(counter);
+        playMusic();
+    });
+
+    active_music.addEventListener('timeupdate', (e) => {
+        const { duration, currentTime } = e.target;
+        if (duration) {
+            progress_status.style.width = `${(currentTime / duration) * 100}%`;
+        }
+    });
+
+    active_music.addEventListener('ended', () => {
+        counter = (counter + 1) % music_list.length;
+        loadMusic(counter);
+        playMusic();
+    });
+
+    /* 🎯 SEKUNDNI SKROL (SEEK) QILISHNING ENG ANIQ VA MUKAMMAL USULI */
+    progress.addEventListener('click', (e) => {
+        if (music_list.length === 0 || !active_music.duration) return;
+
+        const rect = progress.getBoundingClientRect(); // Ekrandagi o'rnini o'lchash
+        const clickX = e.clientX - rect.left;          // Nisbiy bosilgan nuqta
+        const width = rect.width;                      // Element kengligi
+
+        active_music.currentTime = (clickX / width) * active_music.duration;
+    });
+</script>
+</body>
+</html>
